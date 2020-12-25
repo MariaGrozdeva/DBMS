@@ -1,2 +1,1 @@
-# DBMS
-A project for the course Data structures and algorithms at FMI, Sofia University (2020/21).
+[link] (https://docs.google.com/document/d/1dewJRqBfTZ530a4nW3-tRI5Sv51ywZXFNvEgZHvRsMk/edit)
