@@ -221,7 +221,13 @@ void Table::updateValuesInColumn(const string& column, const string& newValue, c
         throw "Error! Update failed! Duplicate primary key value!";
 
     for (int i = 0; i < indicesOfDesiredRows.size(); i++)
-        updateCertainCell(i, indexOfColumn, newValue);
+    {
+        for (int j = 0; j < columns[0].size(); j++)
+        {
+            if (j == indicesOfDesiredRows[i])
+                updateCertainCell(j, indexOfColumn, newValue);
+        }
+    }
 }
 int Table::update(const vector<pair<string, string>> newValues, const string& key, const string& op, const string& value)
 {
