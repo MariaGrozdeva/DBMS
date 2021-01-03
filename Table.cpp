@@ -30,6 +30,18 @@ CellType getTypeOfString(const string& str)
 
     return checkIfStringIsBoolean(str) ? typeBool : typeString;
 }
+void setCorrectValueInCell(Cell& cellToBeSet, const string& value)
+{
+    CellType typeOfValue = getTypeOfString(value);
+
+    switch (typeOfValue)
+    {
+    case typeInt: cellToBeSet.setInteger(stoi(value)); break;
+    case typeDouble: cellToBeSet.setDouble(stof(value)); break;
+    case typeString: cellToBeSet.setString(value); break;
+    case typeBool: cellToBeSet.setBool(value == "TRUE"); break;
+    }
+}
 
 Table::Table(const vector<pair<string, CellType>>& columns, const string& primaryKey)
 {
@@ -119,6 +131,75 @@ void Table::insertInto(const vector<string>& values)
 
     for (int i = 0; i < values.size(); i++)
         insertIntoColumn(i, values[i]);
+}
+
+int Table::getIndexOfColumn(const string& column)
+{
+    for (int i = 0; i < columns.size(); i++)
+    {
+        if (names[i] == column)
+            return i;
+    }
+    return -1;
+}
+
+vector<int> Table::where(const string& column, const string& op, const string& value)
+{
+    int indexOfColumn = getIndexOfColumn(column);
+
+    CellType typeOfColumn = types[indexOfColumn];
+    Cell cellInColumn(typeOfColumn);
+    setCorrectValueInCell(cellInColumn, value);
+
+    vector<int> indicesOfDesiredRows;
+
+    if (column == "" && op == "" && value == "")
+    {
+        for (int i = 0; i < columns[0].size(); i++)
+            indicesOfDesiredRows.push_back(i);
+        return indicesOfDesiredRows;
+    }
+
+    for (int i = 0; i < columns[0].size(); i++)
+    {
+        if (op == "=")
+        {
+            if (columns[indexOfColumn][i] == cellInColumn)
+                indicesOfDesiredRows.push_back(i);
+        }
+
+        else if (op == "!=")
+        {
+            if (columns[indexOfColumn][i] != cellInColumn)
+                indicesOfDesiredRows.push_back(i);
+        }
+
+        else if (op == "<")
+        {
+            if (columns[indexOfColumn][i] < cellInColumn)
+                indicesOfDesiredRows.push_back(i);
+        }
+
+        else if (op == "<=")
+        {
+            if (columns[indexOfColumn][i] <= cellInColumn)
+                indicesOfDesiredRows.push_back(i);
+        }
+
+        else if (op == ">")
+        {
+            if (columns[indexOfColumn][i] > cellInColumn)
+                indicesOfDesiredRows.push_back(i);
+        }
+
+        else if (op == ">=")
+        {
+            if (columns[indexOfColumn][i] >= cellInColumn)
+                indicesOfDesiredRows.push_back(i);
+        }
+    }
+
+    return indicesOfDesiredRows;
 }
 
 void Table::print() const

@@ -33,3 +33,8 @@ public:
 };
 
 bool operator==(const Cell& lhs, const Cell& rhs);
+bool operator!=(const Cell& lhs, const Cell& rhs);
+bool operator<(const Cell& lhs, const Cell& rhs);
+bool operator<=(const Cell& lhs, const Cell& rhs);
+bool operator>(const Cell& lhs, const Cell& rhs);
+bool operator>=(const Cell& lhs, const Cell& rhs);

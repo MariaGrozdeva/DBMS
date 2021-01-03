@@ -67,3 +67,45 @@ bool operator==(const Cell& lhs, const Cell& rhs)
 
 	return false;
 }
+bool operator!=(const Cell& lhs, const Cell& rhs)
+{
+	return !(lhs == rhs);
+}
+bool operator<(const Cell& lhs, const Cell& rhs)
+{
+	if (lhs.getType() != rhs.getType())
+		return false;
+
+	switch (lhs.getType())
+	{
+	case typeInt: return lhs.getInteger() < rhs.getInteger();
+	case typeDouble: return lhs.getDouble() < rhs.getDouble();
+	case typeString: return lhs.getString() < rhs.getString();
+	case typeBool: return lhs.getBool() < rhs.getBool();
+	}
+
+	return false;
+}
+bool operator<=(const Cell& lhs, const Cell& rhs)
+{
+	if (lhs.getType() != rhs.getType())
+		return false;
+
+	switch (lhs.getType())
+	{
+	case typeInt: return lhs.getInteger() <= rhs.getInteger();
+	case typeDouble: return lhs.getDouble() <= rhs.getDouble();
+	case typeString: return lhs.getString() <= rhs.getString();
+	case typeBool: return lhs.getBool() <= rhs.getBool();
+	}
+
+	return false;
+}
+bool operator>(const Cell& lhs, const Cell& rhs)
+{
+	return !(lhs <= rhs);
+}
+bool operator>=(const Cell& lhs, const Cell& rhs)
+{
+	return !(lhs < rhs);
+}
