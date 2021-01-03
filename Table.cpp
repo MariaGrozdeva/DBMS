@@ -32,7 +32,7 @@ CellType getTypeOfString(const string& str)
 }
 void setCorrectValueInCell(Cell& cellToBeSet, const string& value)
 {
-    CellType typeOfValue = getTypeOfString(value);
+    CellType typeOfValue = cellToBeSet.getType();
 
     switch (typeOfValue)
     {
@@ -202,11 +202,11 @@ vector<int> Table::where(const string& column, const string& op, const string& v
     return indicesOfDesiredRows;
 }
 
-void Table::updateCerainRow(int indexOfRow, int indexOfColumn, const string& newValue)
+void Table::updateCertainCell(int indexOfRow, int indexOfColumn, const string& newValue)
 {
     CellType typeOfNewValue = getTypeOfString(newValue);
 
-    if (typeOfNewValue != types[indexOfColumn])
+    if (typeOfNewValue != types[indexOfColumn] && !(typeOfNewValue == typeInt && types[indexOfColumn] == typeDouble))
         throw "Error! Update failed! The new value is not of the correct type!";
 
     setCorrectValueInCell(columns[indexOfColumn][indexOfRow], newValue);
@@ -221,7 +221,7 @@ void Table::updateValuesInColumn(const string& column, const string& newValue, c
         throw "Error! Update failed! Duplicate primary key value!";
 
     for (int i = 0; i < indicesOfDesiredRows.size(); i++)
-        updateCerainRow(i, indexOfColumn, newValue);
+        updateCertainCell(i, indexOfColumn, newValue);
 }
 int Table::update(const vector<pair<string, string>> newValues, const string& key, const string& op, const string& value)
 {

@@ -15,7 +15,7 @@ class Table
 	int getIndexOfColumn(const string& column);
 
 	vector<int> where(const string& column, const string& op, const string& value);
-	void updateCerainRow(int indexOfRow, int indexOfColumn, const string& newValue);
+	void updateCertainCell(int indexOfRow, int indexOfColumn, const string& newValue);
 	void updateValuesInColumn(const string& column, const string& newValue, const vector<int>& indicesOfDesiredRows);
 
 public:
