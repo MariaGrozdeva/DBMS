@@ -145,12 +145,6 @@ int Table::getIndexOfColumn(const string& column)
 
 vector<int> Table::where(const string& column, const string& op, const string& value)
 {
-    int indexOfColumn = getIndexOfColumn(column);
-
-    CellType typeOfColumn = types[indexOfColumn];
-    Cell cellInColumn(typeOfColumn);
-    setCorrectValueInCell(cellInColumn, value);
-
     vector<int> indicesOfDesiredRows;
 
     if (column == "" && op == "" && value == "")
@@ -159,6 +153,12 @@ vector<int> Table::where(const string& column, const string& op, const string& v
             indicesOfDesiredRows.push_back(i);
         return indicesOfDesiredRows;
     }
+
+    int indexOfColumn = getIndexOfColumn(column);
+
+    CellType typeOfColumn = types[indexOfColumn];
+    Cell cellInColumn(typeOfColumn);
+    setCorrectValueInCell(cellInColumn, value);
 
     for (int i = 0; i < columns[0].size(); i++)
     {
