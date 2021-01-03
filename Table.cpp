@@ -140,7 +140,7 @@ int Table::getIndexOfColumn(const string& column)
         if (names[i] == column)
             return i;
     }
-    return -1;
+    throw "Error! Such column does not exist!";
 }
 
 vector<int> Table::where(const string& column, const string& op, const string& value)
@@ -200,6 +200,37 @@ vector<int> Table::where(const string& column, const string& op, const string& v
     }
 
     return indicesOfDesiredRows;
+}
+
+void Table::updateCerainRow(int indexOfRow, int indexOfColumn, const string& newValue)
+{
+    CellType typeOfNewValue = getTypeOfString(newValue);
+
+    if (typeOfNewValue != types[indexOfColumn])
+        throw "Error! Update failed! The new value is not of the correct type!";
+
+    setCorrectValueInCell(columns[indexOfColumn][indexOfRow], newValue);
+}
+void Table::updateValuesInColumn(const string& column, const string& newValue, const vector<int>& indicesOfDesiredRows)
+{
+    int indexOfColumn = getIndexOfColumn(column);
+    Cell toCheckIfExist(getTypeOfString(newValue));
+    setCorrectValueInCell(toCheckIfExist, newValue);
+
+    if (indexOfColumn == primaryKeyColIndex && existsValueInPrimaryKey(toCheckIfExist))
+        throw "Error! Update failed! Duplicate primary key value!";
+
+    for (int i = 0; i < indicesOfDesiredRows.size(); i++)
+        updateCerainRow(i, indexOfColumn, newValue);
+}
+int Table::update(const vector<pair<string, string>> newValues, const string& key, const string& op, const string& value)
+{
+    vector<int> indicesOfDesiredRows = where(key, op, value);
+
+    for (int i = 0; i < newValues.size(); i++)
+        updateValuesInColumn(newValues[i].first, newValues[i].second, indicesOfDesiredRows);
+
+    return indicesOfDesiredRows.size();
 }
 
 void Table::print() const
