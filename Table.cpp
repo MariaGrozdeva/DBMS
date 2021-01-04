@@ -291,6 +291,30 @@ void Table::swapRows(Table& table, int row)
     for (int i = 0; i < table.columns.size(); i++)
         swapCells(table.columns[i][row], table.columns[i][row + 1]);
 }
+void Table::sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier)
+{
+    for (int i = 0; i < tableToSort.columns[0].size() - 1; i++)
+    {
+        bool isSwapped = false;
+        for (int j = 0; j < tableToSort.columns[0].size() - i - 1; j++)
+        {
+            if (modifier == "ASC" &&
+                tableToSort.columns[posOfColumnToOrderBy][j] > tableToSort.columns[posOfColumnToOrderBy][j + 1])
+            {
+                swapRows(tableToSort, j);
+                isSwapped = true;
+            }
+            else if (modifier == "DESC" &&
+                tableToSort.columns[posOfColumnToOrderBy][j] < tableToSort.columns[posOfColumnToOrderBy][j + 1])
+            {
+                swapRows(tableToSort, j);
+                isSwapped = true;
+            }
+        }
+        if (!isSwapped)
+            return;
+    }
+}
 Table Table::orderBy(const string& columnToOrderBy, const string& modifier, const vector<string>& namesOfDesiredColumns,
     const string& key, const string& op, const string& value)
 {
@@ -300,27 +324,7 @@ Table Table::orderBy(const string& columnToOrderBy, const string& modifier, cons
 
     int posOfColumnToOrderBy = getIndexOfColumn(columnToOrderBy);
 
-    for (int i = 0; i < tableCreatedFromSelect.columns[0].size() - 1; i++)
-    {
-        bool isSwapped = false;
-        for (int j = 0; j < tableCreatedFromSelect.columns[0].size() - i - 1; j++)
-        {
-            if (modifier == "ASC" &&
-                tableCreatedFromSelect.columns[posOfColumnToOrderBy][j] > tableCreatedFromSelect.columns[posOfColumnToOrderBy][j + 1])
-            {
-                swapRows(tableCreatedFromSelect, j);
-                isSwapped = true;
-            }
-            else if (modifier == "DESC" &&
-                tableCreatedFromSelect.columns[posOfColumnToOrderBy][j] < tableCreatedFromSelect.columns[posOfColumnToOrderBy][j + 1])
-            {
-                swapRows(tableCreatedFromSelect, j);
-                isSwapped = true;
-            }
-        }
-        if (!isSwapped)
-            return tableCreatedFromSelect;
-    }
+    sortTable(tableCreatedFromSelect, posOfColumnToOrderBy, modifier);
 
     return tableCreatedFromSelect;
 }

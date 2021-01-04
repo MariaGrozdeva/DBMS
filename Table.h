@@ -24,6 +24,7 @@ class Table
 	void createRowInNewTable(Table& newTable, int indexOfDesiredRow, const vector<int>& indicesOfDesiredColumns);
 
 	void swapRows(Table& table, int row);
+	void sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier);
 
 public:
 	Table();
