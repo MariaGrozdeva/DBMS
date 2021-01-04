@@ -25,4 +25,9 @@ int main()
 
 	Table newTable = students.select({ "id", "first_name", "last_name" });
 	newTable.print();
+	cout << endl;
+
+	Table sortedNewTable = students.orderBy("id", "DESC", { "id", "first_name", "last_name" });
+	sortedNewTable.print();
+	cout << endl;
 }

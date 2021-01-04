@@ -109,3 +109,43 @@ bool operator>=(const Cell& lhs, const Cell& rhs)
 {
 	return !(lhs < rhs);
 }
+
+void swapCells(Cell& lhs, Cell& rhs)
+{
+	if (lhs.getType() != rhs.getType())
+		return;
+
+	switch (lhs.getType())
+	{
+	case typeInt: 
+	{ 
+		int tempInt = lhs.getInteger();
+		lhs.setInteger(rhs.getInteger());
+		rhs.setInteger(tempInt);
+		break;
+	}
+
+	case typeDouble:
+	{
+		double tempDouble = lhs.getDouble();
+		lhs.setDouble(rhs.getDouble());
+		rhs.setDouble(tempDouble);
+		break;
+	}
+
+	case typeString:
+	{
+		string tempStr = lhs.getString();
+		lhs.setString(rhs.getString());
+		rhs.setString(tempStr);
+		break;
+	}
+
+	case typeBool:
+	{
+		bool tempBool = lhs.getBool();
+		lhs.setBool(rhs.getBool());
+		rhs.setBool(tempBool);
+	}
+	}
+}

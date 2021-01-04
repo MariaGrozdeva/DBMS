@@ -23,6 +23,8 @@ class Table
 	void setNewTable(Table& newTable, int posOfRow, int posOfCol, int posInNewTable);
 	void createRowInNewTable(Table& newTable, int indexOfDesiredRow, const vector<int>& indicesOfDesiredColumns);
 
+	void swapRows(Table& table, int row);
+
 public:
 	Table();
 	Table(const vector<pair<string, CellType>>& columns, const string& primaryKey);
@@ -30,6 +32,8 @@ public:
 	void insertInto(const vector<string>& values);
 	int update(const vector<pair<string, string>> newValues, const string& key = "", const string& op = "", const string& value = "");
 	Table select(const vector<string>& columns = {}, const string& key = "", const string& op = "", const string& value = "");
+	Table orderBy(const string& columnToOrderBy, const string& modifier, const vector<string>& columns = {},
+		const string& key = "", const string& op = "", const string& value = "");
 
 	void print() const;
 };
