@@ -43,6 +43,7 @@ void setCorrectValueInCell(Cell& cellToBeSet, const string& value)
     }
 }
 
+Table::Table() {}
 Table::Table(const vector<pair<string, CellType>>& columns, const string& primaryKey)
 {
     for (int i = 0; i < columns.size(); i++)
@@ -54,6 +55,16 @@ Table::Table(const vector<pair<string, CellType>>& columns, const string& primar
         if (primaryKey == columns[i].first)
             primaryKeyColIndex = i;
     }
+}
+
+int Table::getIndexOfColumn(const string& column)
+{
+    for (int i = 0; i < columns.size(); i++)
+    {
+        if (names[i] == column)
+            return i;
+    }
+    throw "Error! Such column does not exist!";
 }
 
 bool Table::existsValueInPrimaryKey(const Cell& cell)
@@ -131,16 +142,6 @@ void Table::insertInto(const vector<string>& values)
 
     for (int i = 0; i < values.size(); i++)
         insertIntoColumn(i, values[i]);
-}
-
-int Table::getIndexOfColumn(const string& column)
-{
-    for (int i = 0; i < columns.size(); i++)
-    {
-        if (names[i] == column)
-            return i;
-    }
-    throw "Error! Such column does not exist!";
 }
 
 vector<int> Table::where(const string& column, const string& op, const string& value)
@@ -221,13 +222,7 @@ void Table::updateValuesInColumn(const string& column, const string& newValue, c
         throw "Error! Update failed! Duplicate primary key value!";
 
     for (int i = 0; i < indicesOfDesiredRows.size(); i++)
-    {
-        for (int j = 0; j < columns[0].size(); j++)
-        {
-            if (j == indicesOfDesiredRows[i])
-                updateCertainCell(j, indexOfColumn, newValue);
-        }
-    }
+        updateCertainCell(indicesOfDesiredRows[i], indexOfColumn, newValue);
 }
 int Table::update(const vector<pair<string, string>> newValues, const string& key, const string& op, const string& value)
 {
@@ -237,6 +232,57 @@ int Table::update(const vector<pair<string, string>> newValues, const string& ke
         updateValuesInColumn(newValues[i].first, newValues[i].second, indicesOfDesiredRows);
 
     return indicesOfDesiredRows.size();
+}
+
+void Table::resizeNewTable(Table& newTable, int columnsSize)
+{
+    newTable.columns.resize(columnsSize);
+    newTable.names.resize(columnsSize);
+    newTable.types.resize(columnsSize);
+}
+void Table::setNewTable(Table& newTable, int posOfRow, int posOfCol, int posInNewTable)
+{
+    newTable.columns[posInNewTable].push_back(this->columns[posOfCol][posOfRow]);
+    newTable.types[posInNewTable] = this->types[posOfCol];
+    newTable.names[posInNewTable] = this->names[posOfCol];
+    newTable.primaryKeyColIndex = this->primaryKeyColIndex;
+}
+void Table::createRowInNewTable(Table& newTable, int indexOfDesiredRow, const vector<int>& indicesOfDesiredColumns)
+{
+    for (int i = 0; i < indicesOfDesiredColumns.size(); i++)
+        setNewTable(newTable, indexOfDesiredRow, indicesOfDesiredColumns[i], i);
+}
+Table Table::select(const vector<string>& namesOfDesiredColumns, const string& key, const string& op, const string& value)
+{
+    Table newTable;
+    vector<int> indicesOfDesiredRows;
+    vector<int> indicesOfDesiredColumns;
+
+    if (key == "" && op == "" && value == "") // no where (select all rows)
+    {
+        for (int i = 0; i < this->columns[0].size(); i++)
+            indicesOfDesiredRows.push_back(i);
+    }
+    else // where (select certain rows)
+        indicesOfDesiredRows = where(key, op, value);
+
+    if (!namesOfDesiredColumns.size()) // select *
+    {
+        resizeNewTable(newTable, this->columns.size());
+        for (int i = 0; i < this->columns.size(); i++)
+            indicesOfDesiredColumns.push_back(i);
+    } 
+    else // select col1 col2 .. coln
+    {
+        resizeNewTable(newTable, namesOfDesiredColumns.size());
+        for (int i = 0; i < namesOfDesiredColumns.size(); i++)
+            indicesOfDesiredColumns.push_back(getIndexOfColumn(namesOfDesiredColumns[i]));
+    }
+
+    for (int i = 0; i < indicesOfDesiredRows.size(); i++)
+        createRowInNewTable(newTable, indicesOfDesiredRows[i], indicesOfDesiredColumns);
+
+    return newTable;
 }
 
 void Table::print() const
