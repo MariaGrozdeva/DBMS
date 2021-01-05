@@ -26,6 +26,9 @@ class Table
 	void swapRows(Table& table, int row1, int row2);
 	void sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier);
 
+	void validateColumnsTypesForAggregate(const Table& tableToValidate, const vector<pair<string, string>> aggFunctionsAndColumns);
+	double calculateAggregateValueOfColumn(const Table& table, const string& aggFunction, const string& column);
+
 public:
 	Table();
 	Table(const vector<pair<string, CellType>>& columns, const string& primaryKey);
@@ -33,7 +36,11 @@ public:
 	void insertInto(const vector<string>& values);
 	int update(const vector<pair<string, string>> newValues, const string& key = "", const string& op = "", const string& value = "");
 	Table select(const vector<string>& columns = {}, const string& key = "", const string& op = "", const string& value = "");
+
 	Table orderBy(const string& columnToOrderBy, const string& modifier, const vector<string>& columns = {},
+		const string& key = "", const string& op = "", const string& value = "");
+
+	vector<double> aggregate(const vector<pair<string, string>> aggFunctionsAndColumns,
 		const string& key = "", const string& op = "", const string& value = "");
 
 	void print() const;

@@ -10,24 +10,21 @@ int main()
 	v.push_back(make_pair("grade", typeDouble));
 
 	vector<pair<string, string>> v1;
-	v1.push_back(make_pair("age", "25"));
-	v1.push_back(make_pair("grade", "2"));
+	v1.push_back(make_pair("COUNT", "first_name"));
+	v1.push_back(make_pair("SUM", "age"));
+	v1.push_back(make_pair("AVG", "grade"));
 
 	Table students(v, "id");
-	students.insertInto({ "1","Angel","Ivanov","17","5.5" });
+	students.insertInto({ "1","Angel","Ivanov","17","2" });
 	students.insertInto({ "5","Maria","Georgieva","11","6" });
+	students.insertInto({ "10","Uga","Buga","90","4" });
 	students.print();
 	cout << endl;
 
-	students.update(v1, "first_name", "=", "Angel");
-	students.print();
-	cout << endl;
+	vector<double> aggregatedValues;
+	aggregatedValues = students.aggregate(v1, "id", ">", "1");
 
-	Table newTable = students.select({ "id", "first_name", "last_name" });
-	newTable.print();
-	cout << endl;
-
-	Table sortedNewTable = students.orderBy("id", "DESC", { "id", "first_name", "last_name" });
-	sortedNewTable.print();
+	for (int i = 0; i < aggregatedValues.size(); i++)
+		cout << aggregatedValues[i] << " ";
 	cout << endl;
 }

@@ -44,6 +44,71 @@ void setCorrectValueInCell(Cell& cellToBeSet, const string& value)
     }
 }
 
+int Count(const vector<Cell>& column)
+{
+    int count = 0;
+
+    for (int i = 0; i < column.size(); i++)
+        count++;
+
+    return count;
+}
+double extremeValue(const vector<Cell>& column, bool calledByMax = false)
+{
+    double extremeValue;
+
+    CellType type = column[0].getType();
+    Cell newCell(type);
+
+    type == typeInt ? extremeValue = column[0].getInteger() : extremeValue = column[0].getDouble();
+    type == typeInt ? newCell.setInteger(extremeValue) : newCell.setDouble(extremeValue);
+
+    for (int i = 0; i < column.size(); i++)
+    {
+        if (calledByMax)
+        {
+            if (column[i] > newCell)
+                extremeValue = (type == typeInt ? column[i].getInteger() : column[i].getDouble());
+        }
+        else
+        {
+            if (column[i] < newCell)
+                extremeValue = (type == typeInt ? column[i].getInteger() : column[i].getDouble());
+        }
+    }
+
+    return extremeValue;
+}
+double Max(const vector<Cell>& column)
+{
+    return extremeValue(column, true);
+}
+double Min(const vector<Cell>& column)
+{
+    return extremeValue(column);
+}
+double Sum(const vector<Cell>& column)
+{
+    double sum = 0;
+    CellType type = column[0].getType();
+
+    for (int i = 0; i < column.size(); i++)
+    {
+        if (type == typeInt)
+            sum += column[i].getInteger();
+        else
+            sum += column[i].getDouble();
+    }
+
+    return sum;
+}
+double Avg(const vector<Cell>& column)
+{
+    double average = Sum(column) / Count(column);
+
+    return average;
+}
+
 Table::Table() {}
 Table::Table(const vector<pair<string, CellType>>& columns, const string& primaryKey)
 {
@@ -315,14 +380,69 @@ Table Table::orderBy(const string& columnToOrderBy, const string& modifier, cons
     const string& key, const string& op, const string& value)
 {
     Table tableCreatedFromSelect = select(namesOfDesiredColumns, key, op, value);
-    if (!tableCreatedFromSelect.columns[0].size())
-        throw "Error! Value in no column corresponds to the given value of key!";
-
     int posOfColumnToOrderBy = getIndexOfColumn(columnToOrderBy);
 
     sortTable(tableCreatedFromSelect, posOfColumnToOrderBy, modifier);
 
     return tableCreatedFromSelect;
+}
+
+void Table::validateColumnsTypesForAggregate(const Table& tableToValidate, const vector<pair<string, string>> aggFunctionsAndColumns)
+{
+    for (int i = 0; i < tableToValidate.columns.size(); i++)
+    {
+        bool correct = false;
+        if (tableToValidate.types[i] != typeInt && tableToValidate.types[i] != typeDouble)
+        {
+            for (int j = 0; j < aggFunctionsAndColumns.size(); j++)
+            {
+                if (tableToValidate.names[i] == aggFunctionsAndColumns[j].second && aggFunctionsAndColumns[j].first == "COUNT")
+                    correct = true;
+            }
+
+            if (!correct)
+                throw "Aggregate functions accept either int and double-typelized columns or the agg function must be COUNT!";
+        }
+    }
+}
+double Table::calculateAggregateValueOfColumn(const Table& table, const string& aggFunction, const string& column)
+{
+    int indexOfCol = 0;
+    for (int i = 0; i < table.columns.size(); i++)
+    {
+        if (table.names[i] == column)
+            indexOfCol = i;
+    }
+
+    vector<Cell> columnToGetAggValue = table.columns[indexOfCol];
+
+    if (aggFunction == "COUNT")
+        return Count(columnToGetAggValue);
+    else if (aggFunction == "MAX")
+        return Max(columnToGetAggValue);
+    else if (aggFunction == "MIN")
+        return Min(columnToGetAggValue);
+    else if (aggFunction == "SUM")
+        return Sum(columnToGetAggValue);
+    else if (aggFunction == "AVG")
+        return Avg(columnToGetAggValue);
+}
+vector<double> Table::aggregate(const vector<pair<string, string>> aggFunctionsAndColumns,
+    const string& key, const string& op, const string& value)
+{
+    vector<string> aggColumns;
+    for (int i = 0; i < aggFunctionsAndColumns.size(); i++)
+        aggColumns.push_back(aggFunctionsAndColumns[i].second);
+
+    Table tableCreatedFromSelect = select(aggColumns, key, op, value);
+    validateColumnsTypesForAggregate(tableCreatedFromSelect, aggFunctionsAndColumns);
+
+    vector<double> aggregatedValues;
+    for (int i = 0; i < aggFunctionsAndColumns.size(); i++)
+        aggregatedValues.push_back(calculateAggregateValueOfColumn(tableCreatedFromSelect,
+            aggFunctionsAndColumns[i].first, aggFunctionsAndColumns[i].second));
+
+    return aggregatedValues;
 }
 
 void Table::print() const
