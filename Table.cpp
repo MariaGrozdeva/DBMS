@@ -286,33 +286,29 @@ Table Table::select(const vector<string>& namesOfDesiredColumns, const string& k
     return newTable;
 }
 
-void Table::swapRows(Table& table, int row)
+void Table::swapRows(Table& table, int row1, int row2)
 {
     for (int i = 0; i < table.columns.size(); i++)
-        swapCells(table.columns[i][row], table.columns[i][row + 1]);
+        swapCells(table.columns[i][row1], table.columns[i][row2]);
 }
 void Table::sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier)
 {
     for (int i = 0; i < tableToSort.columns[0].size() - 1; i++)
     {
-        bool isSwapped = false;
-        for (int j = 0; j < tableToSort.columns[0].size() - i - 1; j++)
+        int index = i;
+        for (int j = index + 1; j < tableToSort.columns[0].size(); j++)
         {
             if (modifier == "ASC" &&
-                tableToSort.columns[posOfColumnToOrderBy][j] > tableToSort.columns[posOfColumnToOrderBy][j + 1])
-            {
-                swapRows(tableToSort, j);
-                isSwapped = true;
-            }
+                tableToSort.columns[posOfColumnToOrderBy][j] < tableToSort.columns[posOfColumnToOrderBy][index])
+                    index = j;
+
             else if (modifier == "DESC" &&
-                tableToSort.columns[posOfColumnToOrderBy][j] < tableToSort.columns[posOfColumnToOrderBy][j + 1])
-            {
-                swapRows(tableToSort, j);
-                isSwapped = true;
-            }
+                tableToSort.columns[posOfColumnToOrderBy][j] > tableToSort.columns[posOfColumnToOrderBy][index])
+                    index = j;
         }
-        if (!isSwapped)
-            return;
+
+        if (index != i)
+            swapRows(tableToSort, i, index); 
     }
 }
 Table Table::orderBy(const string& columnToOrderBy, const string& modifier, const vector<string>& namesOfDesiredColumns,

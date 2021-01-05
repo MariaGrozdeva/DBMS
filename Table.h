@@ -23,7 +23,7 @@ class Table
 	void setNewTable(Table& newTable, int posOfRow, int posOfCol, int posInNewTable);
 	void createRowInNewTable(Table& newTable, int indexOfDesiredRow, const vector<int>& indicesOfDesiredColumns);
 
-	void swapRows(Table& table, int row);
+	void swapRows(Table& table, int row1, int row2);
 	void sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier);
 
 public:
