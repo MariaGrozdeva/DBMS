@@ -9,7 +9,7 @@ class Table
 
 	int primaryKeyColIndex;
 
-	int getIndexOfColumn(const string& column);
+	int getIndexOfColumn(const string& column) const;
 	
 	bool existsValueInPrimaryKey(const Cell& cell);
 	void insertIntoColumn(int colIndex, const string& value);

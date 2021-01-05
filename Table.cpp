@@ -46,12 +46,7 @@ void setCorrectValueInCell(Cell& cellToBeSet, const string& value)
 
 int Count(const vector<Cell>& column)
 {
-    int count = 0;
-
-    for (int i = 0; i < column.size(); i++)
-        count++;
-
-    return count;
+    return column.size();
 }
 double extremeValue(const vector<Cell>& column, bool calledByMax = false)
 {
@@ -65,16 +60,8 @@ double extremeValue(const vector<Cell>& column, bool calledByMax = false)
 
     for (int i = 0; i < column.size(); i++)
     {
-        if (calledByMax)
-        {
-            if (column[i] > newCell)
-                extremeValue = (type == typeInt ? column[i].getInteger() : column[i].getDouble());
-        }
-        else
-        {
-            if (column[i] < newCell)
-                extremeValue = (type == typeInt ? column[i].getInteger() : column[i].getDouble());
-        }
+        if ((calledByMax && (column[i] > newCell) || (!calledByMax && (column[i] < newCell))))
+            extremeValue = (type == typeInt ? column[i].getInteger() : column[i].getDouble());
     }
 
     return extremeValue;
@@ -123,7 +110,7 @@ Table::Table(const vector<pair<string, CellType>>& columns, const string& primar
     }
 }
 
-int Table::getIndexOfColumn(const string& column)
+int Table::getIndexOfColumn(const string& column) const
 {
     for (int i = 0; i < columns.size(); i++)
     {
@@ -406,13 +393,8 @@ void Table::validateColumnsTypesForAggregate(const Table& tableToValidate, const
     }
 }
 double Table::calculateAggregateValueOfColumn(const Table& table, const string& aggFunction, const string& column)
-{
-    int indexOfCol = 0;
-    for (int i = 0; i < table.columns.size(); i++)
-    {
-        if (table.names[i] == column)
-            indexOfCol = i;
-    }
+{    
+    int indexOfCol = table.getIndexOfColumn(column);
 
     vector<Cell> columnToGetAggValue = table.columns[indexOfCol];
 
