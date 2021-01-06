@@ -311,13 +311,7 @@ Table Table::select(const vector<string>& namesOfDesiredColumns, const string& k
     vector<int> indicesOfDesiredRows;
     vector<int> indicesOfDesiredColumns;
 
-    if (key == "" && op == "" && value == "") // no where (select all rows)
-    {
-        for (int i = 0; i < this->columns[0].size(); i++)
-            indicesOfDesiredRows.push_back(i);
-    }
-    else // where (select certain rows)
-        indicesOfDesiredRows = where(key, op, value);
+    indicesOfDesiredRows = where(key, op, value);
 
     if (!namesOfDesiredColumns.size()) // select *
     {
