@@ -21,10 +21,20 @@ int main()
 	students.print();
 	cout << endl;
 
-	vector<double> aggregatedValues;
-	aggregatedValues = students.aggregate(v1, "id", ">", "1");
+	students.createIndex("id");
 
-	for (int i = 0; i < aggregatedValues.size(); i++)
-		cout << aggregatedValues[i] << " ";
+	students.insertInto({ "20","BUGGA","UGGA","11","3" });
+	students.print();
 	cout << endl;
+
+	Table sortedNewTable = students.orderBy("id", "DESC", { "id", "first_name", "last_name" });
+	sortedNewTable.print();
+	cout << endl;
+
+	//vector<double> aggregatedValues;
+	//aggregatedValues = students.aggregate(v1, "age", "=", "11");
+
+	//for (int i = 0; i < aggregatedValues.size(); i++)
+	//	cout << aggregatedValues[i] << " ";
+	//cout << endl;
 }

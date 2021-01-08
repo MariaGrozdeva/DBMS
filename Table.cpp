@@ -143,6 +143,10 @@ void Table::insertIntoColumn(int colIndex, const string& value)
 
             newCell.setInteger(stoi(value));
             columns[colIndex].push_back(newCell);
+
+            string nameOfCol = names[colIndex];
+            if (indices.find(nameOfCol) != indices.end())
+                indices[nameOfCol].insert(make_pair(stoi(value), columns[colIndex].size() - 1));
         } 
         else
             throw "Error! Values in this column should be integers!";
@@ -158,6 +162,10 @@ void Table::insertIntoColumn(int colIndex, const string& value)
 
             newCell.setDouble(stof(value));
             columns[colIndex].push_back(newCell);
+
+            string nameOfCol = names[colIndex];
+            if (indices.find(nameOfCol) != indices.end())
+                indices[nameOfCol].insert(make_pair(stof(value), columns[colIndex].size() - 1));
         }
         else
             throw "Error! Values in this column should be double numbers!";
@@ -218,8 +226,16 @@ vector<int> Table::where(const string& column, const string& op, const string& v
     {
         if (op == "=")
         {
-            if (columns[indexOfColumn][i] == cellInColumn)
-                indicesOfDesiredRows.push_back(i);
+            if (indices.find(column) == indices.end())
+            {
+                if (columns[indexOfColumn][i] == cellInColumn)
+                    indicesOfDesiredRows.push_back(i);
+            }
+            else
+            {
+                indices[column].searchValues(stof(value), indicesOfDesiredRows);
+                return indicesOfDesiredRows;
+            }
         }
 
         else if (op == "!=")
@@ -337,8 +353,32 @@ void Table::swapRows(Table& table, int row1, int row2)
     for (int i = 0; i < table.columns.size(); i++)
         swapCells(table.columns[i][row1], table.columns[i][row2]);
 }
-void Table::sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier)
-{
+Table Table::sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier)
+{ 
+    if (posOfColumnToOrderBy >= tableToSort.columns.size())
+        throw "Error! Column is out of range!";
+
+    if (indices.find(names[posOfColumnToOrderBy]) != indices.end())
+    {
+        vector<int> sortedRowsIndices;
+        if (modifier == "ASC")
+            indices[names[posOfColumnToOrderBy]].inorderTraversal(sortedRowsIndices);
+        else
+            indices[names[posOfColumnToOrderBy]].outorderTraversal(sortedRowsIndices);
+
+        Table sortedTable;
+        resizeNewTable(sortedTable, tableToSort.columns.size());
+
+        vector<int> indicesOfAllColumns;
+        for (int i = 0; i < tableToSort.columns.size(); i++)
+            indicesOfAllColumns.push_back(i);
+
+        for (int i = 0; i < sortedRowsIndices.size(); i++)
+            tableToSort.createRowInNewTable(sortedTable, sortedRowsIndices[i], indicesOfAllColumns);
+
+        return sortedTable;
+    }
+    
     for (int i = 0; i < tableToSort.columns[0].size() - 1; i++)
     {
         int index = i;
@@ -356,6 +396,8 @@ void Table::sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string
         if (index != i)
             swapRows(tableToSort, i, index); 
     }
+
+    return tableToSort;
 }
 Table Table::orderBy(const string& columnToOrderBy, const string& modifier, const vector<string>& namesOfDesiredColumns,
     const string& key, const string& op, const string& value)
@@ -363,9 +405,7 @@ Table Table::orderBy(const string& columnToOrderBy, const string& modifier, cons
     Table tableCreatedFromSelect = select(namesOfDesiredColumns, key, op, value);
     int posOfColumnToOrderBy = getIndexOfColumn(columnToOrderBy);
 
-    sortTable(tableCreatedFromSelect, posOfColumnToOrderBy, modifier);
-
-    return tableCreatedFromSelect;
+    return sortTable(tableCreatedFromSelect, posOfColumnToOrderBy, modifier);
 }
 
 void Table::validateColumnsTypesForAggregate(const Table& tableToValidate, const vector<pair<string, string>> aggFunctionsAndColumns)
@@ -419,6 +459,31 @@ vector<double> Table::aggregate(const vector<pair<string, string>> aggFunctionsA
             aggFunctionsAndColumns[i].first, aggFunctionsAndColumns[i].second));
 
     return aggregatedValues;
+}
+
+void Table::createIndex(const string& column)
+{
+    if (indices.find(column) != indices.end())
+        throw "Column already has index!";
+
+    int currentColumnIndex = getIndexOfColumn(column);
+    CellType type = types[currentColumnIndex];
+
+    if (type != typeInt && type != typeDouble)
+        throw "No index can be created for a column of type string or bool! This types are not comparable!";
+
+    vector<pair<double, int>> values; 
+
+    for (int i = 0; i < columns[0].size(); i++)
+    {
+        if (type == typeInt)
+            values.push_back(make_pair(columns[currentColumnIndex][i].getInteger(), i));
+        if (type == typeDouble)
+            values.push_back(make_pair(columns[currentColumnIndex][i].getDouble(), i));
+    }
+
+    sort(values.begin(), values.end());
+    indices.insert( {column, BST(values)} );
 }
 
 void Table::print() const

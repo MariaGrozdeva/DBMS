@@ -1,11 +1,14 @@
-#include <vector>
+#include <unordered_map>
 #include "Cell.h"
+#include "BST.h"
 
 class Table
 {
 	vector<vector<Cell>> columns;
 	vector<string> names;
 	vector<CellType> types;
+	
+	unordered_map<string, BST> indices;
 
 	int primaryKeyColIndex;
 
@@ -24,7 +27,7 @@ class Table
 	void createRowInNewTable(Table& newTable, int indexOfDesiredRow, const vector<int>& indicesOfDesiredColumns);
 
 	void swapRows(Table& table, int row1, int row2);
-	void sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier);
+	Table sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier);
 
 	void validateColumnsTypesForAggregate(const Table& tableToValidate, const vector<pair<string, string>> aggFunctionsAndColumns);
 	double calculateAggregateValueOfColumn(const Table& table, const string& aggFunction, const string& column);
@@ -42,6 +45,8 @@ public:
 
 	vector<double> aggregate(const vector<pair<string, string>> aggFunctionsAndColumns,
 		const string& key = "", const string& op = "", const string& value = "");
+
+	void createIndex(const string& column);
 
 	void print() const;
 };
