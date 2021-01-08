@@ -101,7 +101,9 @@ Table::Table(const vector<pair<string, CellType>>& columns, const string& primar
 {
     for (int i = 0; i < columns.size(); i++)
     {
-        names.push_back(columns[i].first);
+        indicesOfNames.insert({ columns[i].first, i });
+        namesOfIndices.insert({ i, columns[i].first });
+
         types.push_back(columns[i].second);
         this->columns.push_back(vector<Cell>());
 
@@ -110,14 +112,12 @@ Table::Table(const vector<pair<string, CellType>>& columns, const string& primar
     }
 }
 
-int Table::getIndexOfColumn(const string& column) const
+int Table::getIndexOfColumn(const string& column)
 {
-    for (int i = 0; i < columns.size(); i++)
-    {
-        if (names[i] == column)
-            return i;
-    }
-    throw "Error! Such column does not exist!";
+    if (indicesOfNames.find(column) == indicesOfNames.end())
+        throw "Error! Such column does not exist!";
+
+    return indicesOfNames[column];
 }
 
 bool Table::existsValueInPrimaryKey(const Cell& cell)
@@ -144,7 +144,7 @@ void Table::insertIntoColumn(int colIndex, const string& value)
             newCell.setInteger(stoi(value));
             columns[colIndex].push_back(newCell);
 
-            string nameOfCol = names[colIndex];
+            string nameOfCol = namesOfIndices[colIndex];
             if (indices.find(nameOfCol) != indices.end())
                 indices[nameOfCol].insert(make_pair(stoi(value), columns[colIndex].size() - 1));
         } 
@@ -163,7 +163,7 @@ void Table::insertIntoColumn(int colIndex, const string& value)
             newCell.setDouble(stof(value));
             columns[colIndex].push_back(newCell);
 
-            string nameOfCol = names[colIndex];
+            string nameOfCol = namesOfIndices[colIndex];
             if (indices.find(nameOfCol) != indices.end())
                 indices[nameOfCol].insert(make_pair(stof(value), columns[colIndex].size() - 1));
         }
@@ -306,14 +306,16 @@ int Table::update(const vector<pair<string, string>> newValues, const string& ke
 void Table::resizeNewTable(Table& newTable, int columnsSize)
 {
     newTable.columns.resize(columnsSize);
-    newTable.names.resize(columnsSize);
     newTable.types.resize(columnsSize);
 }
 void Table::setNewTable(Table& newTable, int posOfRow, int posOfCol, int posInNewTable)
 {
     newTable.columns[posInNewTable].push_back(this->columns[posOfCol][posOfRow]);
     newTable.types[posInNewTable] = this->types[posOfCol];
-    newTable.names[posInNewTable] = this->names[posOfCol];
+
+    newTable.namesOfIndices.insert({ posInNewTable, namesOfIndices[posOfCol] });
+    newTable.indicesOfNames.insert({ namesOfIndices[posOfCol], posInNewTable });
+
     newTable.primaryKeyColIndex = this->primaryKeyColIndex;
 }
 void Table::createRowInNewTable(Table& newTable, int indexOfDesiredRow, const vector<int>& indicesOfDesiredColumns)
@@ -358,13 +360,13 @@ Table Table::sortTable(Table& tableToSort, int posOfColumnToOrderBy, const strin
     if (posOfColumnToOrderBy >= tableToSort.columns.size())
         throw "Error! Column is out of range!";
 
-    if (indices.find(names[posOfColumnToOrderBy]) != indices.end())
+    if (indices.find(namesOfIndices[posOfColumnToOrderBy]) != indices.end())
     {
         vector<int> sortedRowsIndices;
         if (modifier == "ASC")
-            indices[names[posOfColumnToOrderBy]].inorderTraversal(sortedRowsIndices);
+            indices[namesOfIndices[posOfColumnToOrderBy]].inorderTraversal(sortedRowsIndices);
         else
-            indices[names[posOfColumnToOrderBy]].outorderTraversal(sortedRowsIndices);
+            indices[namesOfIndices[posOfColumnToOrderBy]].outorderTraversal(sortedRowsIndices);
 
         Table sortedTable;
         resizeNewTable(sortedTable, tableToSort.columns.size());
@@ -408,7 +410,7 @@ Table Table::orderBy(const string& columnToOrderBy, const string& modifier, cons
     return sortTable(tableCreatedFromSelect, posOfColumnToOrderBy, modifier);
 }
 
-void Table::validateColumnsTypesForAggregate(const Table& tableToValidate, const vector<pair<string, string>> aggFunctionsAndColumns)
+void Table::validateColumnsTypesForAggregate(Table& tableToValidate, const vector<pair<string, string>> aggFunctionsAndColumns)
 {
     for (int i = 0; i < tableToValidate.columns.size(); i++)
     {
@@ -417,7 +419,7 @@ void Table::validateColumnsTypesForAggregate(const Table& tableToValidate, const
         {
             for (int j = 0; j < aggFunctionsAndColumns.size(); j++)
             {
-                if (tableToValidate.names[i] == aggFunctionsAndColumns[j].second && aggFunctionsAndColumns[j].first == "COUNT")
+                if (tableToValidate.namesOfIndices[i] == aggFunctionsAndColumns[j].second && aggFunctionsAndColumns[j].first == "COUNT")
                     correct = true;
             }
 
@@ -426,7 +428,7 @@ void Table::validateColumnsTypesForAggregate(const Table& tableToValidate, const
         }
     }
 }
-double Table::calculateAggregateValueOfColumn(const Table& table, const string& aggFunction, const string& column)
+double Table::calculateAggregateValueOfColumn(Table& table, const string& aggFunction, const string& column)
 {    
     int indexOfCol = table.getIndexOfColumn(column);
 
@@ -483,13 +485,13 @@ void Table::createIndex(const string& column)
     }
 
     sort(values.begin(), values.end());
-    indices.insert( {column, BST(values)} );
+    indices.insert({ column, BST(values) });
 }
 
-void Table::print() const
+void Table::print()
 {
     for (int i = 0; i < columns.size(); i++)
-        cout << names[i] << "    ";
+        cout << namesOfIndices[i] << "    ";
     cout << endl;
 
     for (int i = 0; i < columns[0].size(); i++)

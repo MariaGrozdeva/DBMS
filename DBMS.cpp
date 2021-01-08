@@ -31,10 +31,10 @@ int main()
 	sortedNewTable.print();
 	cout << endl;
 
-	//vector<double> aggregatedValues;
-	//aggregatedValues = students.aggregate(v1, "age", "=", "11");
+	vector<double> aggregatedValues;
+	aggregatedValues = students.aggregate(v1, "age", "=", "11");
 
-	//for (int i = 0; i < aggregatedValues.size(); i++)
-	//	cout << aggregatedValues[i] << " ";
-	//cout << endl;
+	for (int i = 0; i < aggregatedValues.size(); i++)
+		cout << aggregatedValues[i] << " ";
+	cout << endl;
 }

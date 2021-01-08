@@ -5,14 +5,15 @@
 class Table
 {
 	vector<vector<Cell>> columns;
-	vector<string> names;
+	unordered_map<string, int> indicesOfNames;
+	unordered_map<int, string> namesOfIndices;
 	vector<CellType> types;
 	
 	unordered_map<string, BST> indices;
 
 	int primaryKeyColIndex;
 
-	int getIndexOfColumn(const string& column) const;
+	int getIndexOfColumn(const string& column);
 	
 	bool existsValueInPrimaryKey(const Cell& cell);
 	void insertIntoColumn(int colIndex, const string& value);
@@ -29,8 +30,8 @@ class Table
 	void swapRows(Table& table, int row1, int row2);
 	Table sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier);
 
-	void validateColumnsTypesForAggregate(const Table& tableToValidate, const vector<pair<string, string>> aggFunctionsAndColumns);
-	double calculateAggregateValueOfColumn(const Table& table, const string& aggFunction, const string& column);
+	void validateColumnsTypesForAggregate(Table& tableToValidate, const vector<pair<string, string>> aggFunctionsAndColumns);
+	double calculateAggregateValueOfColumn(Table& table, const string& aggFunction, const string& column);
 
 public:
 	Table();
@@ -48,5 +49,5 @@ public:
 
 	void createIndex(const string& column);
 
-	void print() const;
+	void print();
 };
