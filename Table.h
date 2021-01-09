@@ -5,8 +5,8 @@
 class Table
 {
 	vector<vector<Cell>> columns;
-	unordered_map<string, int> indicesOfNames;
-	unordered_map<int, string> namesOfIndices;
+	unordered_map<string, int> indicesOfColumnByName;
+	vector<string> columnsNames;
 	vector<CellType> types;
 	
 	unordered_map<string, BST> indices;
@@ -28,7 +28,7 @@ class Table
 	void createRowInNewTable(Table& newTable, int indexOfDesiredRow, const vector<int>& indicesOfDesiredColumns);
 
 	void swapRows(Table& table, int row1, int row2);
-	Table sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier);
+	void sortTable(Table& tableToSort, int posOfColumnToOrderBy, const string& modifier, Table& sortedTable);
 
 	void validateColumnsTypesForAggregate(Table& tableToValidate, const vector<pair<string, string>> aggFunctionsAndColumns);
 	double calculateAggregateValueOfColumn(Table& table, const string& aggFunction, const string& column);
