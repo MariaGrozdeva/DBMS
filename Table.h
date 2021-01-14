@@ -49,5 +49,7 @@ public:
 
 	void createIndex(const string& column);
 
+	vector<vector<Cell>> getColumns() const;
+
 	void print();
 };

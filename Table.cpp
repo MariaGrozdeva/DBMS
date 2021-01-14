@@ -487,6 +487,11 @@ void Table::createIndex(const string& column)
     indices.insert({ column, BST(values) });
 }
 
+vector<vector<Cell>> Table::getColumns() const
+{
+    return columns;
+}
+
 void Table::print()
 {
     for (int i = 0; i < columns.size(); i++)
