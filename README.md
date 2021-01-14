@@ -1,2 +1,2 @@
-# минималистична Система на управление на бази от данни (СУБД, DBMS) 
+# Database management system, DBMS
 [DBMS](https://docs.google.com/document/d/1dewJRqBfTZ530a4nW3-tRI5Sv51ywZXFNvEgZHvRsMk/edit)
